@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { PaginaRegistro } from '../pages/paginaResgistro';
+import { PaginaLogin } from '../pages/paginaLogin';
 
 
 let paginaRegistro: PaginaRegistro;
@@ -34,8 +35,19 @@ test('TC2 - Login with invalid credentials', async ({ page }) => {
   await expect(page.getByText(paginaRegistro.textoEmailEnUso)).toBeVisible();
 });
 
-//test('Login without credentials', async ({ page }) => {
+test('TC 3 - validate redirect after successful registration', async ({ page }) => {
+  paginaRegistro = new PaginaRegistro(page);
+  const emailAleatorio = 'rodrigo' + Math.floor(Math.random() * 1000) + '@example.com';
 
-//});
+  await paginaRegistro.visitarPaginaRegistro();
+  await paginaRegistro.registrarUsuario(
+    'Rodrigo',
+    'Serrato',
+    emailAleatorio,
+    '123456'
+  );
+  await expect(page.getByText(paginaRegistro.textoRegistroExitoso)).toBeVisible();
+  await page.waitForURL('http://localhost:3000/login');
+});
 
 
