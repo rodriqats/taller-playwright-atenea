@@ -1,29 +1,38 @@
 import { test, expect } from '@playwright/test';
 import { PaginaRegistro } from '../pages/paginaResgistro';
 
-// Importamos la clase PaginaRegistro desde el archivo paginaResgistro.ts
-// Esta clase contiene los selectores y métodos para interactuar con la página de registro
+
 let paginaRegistro: PaginaRegistro;
-test(' TC1 -Login with valid credentials', async ({ page }) => {
-  // Creamos una instancia de PaginaRegistro pasando el objeto page
-  // Esto nos permite acceder a los selectores y métodos definidos en la clase
-  // para interactuar con la página de registro
+
+test('TC1 - Login with valid credentials', async ({ page }) => {
   paginaRegistro = new PaginaRegistro(page);
-  const emailAleatorio = 'rodrigos' + Math.floor(Math.random() * 1000) + '@example.com';
-  await page.goto('http://localhost:3000/signup');
-  await paginaRegistro.nombreInput.fill('Rodrigo');
-  await page.locator('[name= "lastName"]').fill('Serrato');
-  await page.locator('[name= "email"]').fill(emailAleatorio);
-  await page.locator('[name= "password"]').fill('123456');
-  await page.getByTestId('formulario-registro').click();
-  await expect(page.getByText('Registro exitoso!')).toBeVisible();
+  // Generar un email aleatorio para evitar conflictos de registro
+  const emailAleatorio = 'rodrigo' + Math.floor(Math.random() * 1000) + '@example.com';
+
+  await paginaRegistro.visitarPaginaRegistro();
+  await paginaRegistro.registrarUsuario(
+    'Rodrigo',
+    'Serrato',
+    emailAleatorio,
+    '123456'
+  );
+  await expect(page.getByText(paginaRegistro.textoRegistroExitoso)).toBeVisible();
   await page.waitForTimeout(2000)
 
 });
 
-//test('Login with invalid credentials', async ({ page }) => {
-
-//});
+test('TC2 - Login with invalid credentials', async ({ page }) => {
+  paginaRegistro = new PaginaRegistro(page);
+  // Navegar a la página de registro
+  await paginaRegistro.visitarPaginaRegistro();
+  await paginaRegistro.completarFormularioRegistro(
+    'Rodrigo',
+    'Serrato',
+    'rodrigo@gmail.com',
+    '123456');
+  await paginaRegistro.hacerClickBotonRegistrarse();
+  await expect(page.getByText(paginaRegistro.textoEmailEnUso)).toBeVisible();
+});
 
 //test('Login without credentials', async ({ page }) => {
 
